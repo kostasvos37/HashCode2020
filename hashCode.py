@@ -1,12 +1,16 @@
+import statistics
+
 class Library:
-    def __init__(self, N, T, M, ids):
+    def __init__(self, N, T, M, ids, mean, days):
         self.books = N
         self.signup = T
         self.rate = M
         self.bookIDs = [int(i) for i in ids]
-    
+        self.mean = mean
+        self.score = M * mean * (days - T)
+
     def printDetails(self):
-        print("Books : ", self.books, "Signup time : ", self.signup, "Rate : ", self.rate)
+        print("Books : ", self.books, "Signup time : ", self.signup, "Rate : ", self.rate, "Score = ", self.score)
         print("Book ids : ")
         for i in self.bookIDs:
             print(i, end=" ")
@@ -39,6 +43,8 @@ class Solver:
             i.printDetails()
             id = id+1
         print("")
+    
+
 
 
 input = "./inputs/a_example.txt"
@@ -57,10 +63,15 @@ for i in range(arr1[1]):
 
     ids = inputFile.readline()
     books = ids.split(" ")
+    books = [int(i) for i in books]
 
-    newLibrary = Library(libstats[0], libstats[1], libstats[2], books)
+    costs = [solution.bookScores[i] for i in books]
+    average = statistics.mean(costs)
+
+    newLibrary = Library(libstats[0], libstats[1], libstats[2], books, average, solution.days)
 
     solution.addLibrary(newLibrary)
+
 solution.printLibraryDetails()
 
 
