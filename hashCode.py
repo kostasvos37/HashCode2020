@@ -68,43 +68,74 @@ class Solver:
         while(self.libraryList):
             self.chooseLibrary()
     
-    def results(self):
-        print("\n ================ Results =================")
+    def results(self, output):
+        toPrint = ""
+        toPrint = toPrint+str(len(self.chosen))+ "\n"
         for i in self.chosen:
-            print("Library = ", i[0].id, "Signup time = ", i[1])
-        
+            booksToPrint = self.findBooks(i)
+            toPrint = toPrint + str(i[0].id) + " " + str(len(booksToPrint)) + "\n"
+            for j in booksToPrint:
+                toPrint = toPrint + str(j) + " "
+            toPrint = toPrint + "\n"
+        toPrint = toPrint + "\n"
+        f = open(output, "w+")
+        f.write(toPrint)
+        f.close()        
 
+        
+    def findBooks(self, library):
+        lib = library[0]
+        time = library[1]
+        lib.bookIDs = sorted(lib.bookIDs, key = lambda i:self.bookScores[i], reverse=True)
+        numOfBooks = (self.days - self.remaining + lib.signup)*lib.rate
+        numOfBooks = lib.books if (numOfBooks > lib.books) else numOfBooks
+        ret = []
+        for i in range(numOfBooks):
+            ret.append(lib.bookIDs[i])
+        
+        return ret
 
     
-input = "./inputs/b_read_on.txt"
-inputFile = open(input)
 
-line1 = inputFile.readline()
-arr1 = line1.split(" ")
-arr1 = [int(i) for i in arr1]
-line2 = inputFile.readline()
-scores = line2.split(" ")
-solution = Solver(arr1[0],arr1[1],arr1[2],scores)
-#solution.printScores()
 
-counter = 0
-for i in range(arr1[1]):
-    libStats = inputFile.readline()
-    libstats = [int(i) for i in libStats.split(" ")]
 
-    ids = inputFile.readline()
-    books = ids.split(" ")
-    books = [int(i) for i in books]
 
-    costs = [solution.bookScores[i] for i in books]
-    average = statistics.mean(costs)
 
-    newLibrary = Library(libstats[0], libstats[1], libstats[2], books, average, solution.days, counter)
-    counter = counter + 1
-    solution.addLibrary(newLibrary)
+def run(inputs, outputs):    
+    input = inputs
+    inputFile = open(input)
 
-#solution.printLibraryDetails()
+    line1 = inputFile.readline()
+    arr1 = line1.split(" ")
+    arr1 = [int(i) for i in arr1]
+    line2 = inputFile.readline()
+    scores = line2.split(" ")
+    solution = Solver(arr1[0],arr1[1],arr1[2],scores)
+    #solution.printScores()
 
-solution.driver()
-solution.results()
+    counter = 0
+    for i in range(arr1[1]):
+        libStats = inputFile.readline()
+        libstats = [int(i) for i in libStats.split(" ")]
 
+        ids = inputFile.readline()
+        books = ids.split(" ")
+        books = [int(i) for i in books]
+
+        costs = [solution.bookScores[i] for i in books]
+        average = statistics.mean(costs)
+
+        newLibrary = Library(libstats[0], libstats[1], libstats[2], books, average, solution.days, counter)
+        counter = counter + 1
+        solution.addLibrary(newLibrary)
+
+    #solution.printLibraryDetails()
+
+    solution.driver()
+    solution.results(outputs)
+
+inputs = ["./inputs/a_example.txt", "./inputs/b_read_on.txt", "./inputs/c_incunabula.txt", "./inputs/d_tough_choices.txt", "./inputs/e_so_many_books.txt", "./inputs/f_libraries_of_the_world.txt"]
+outputs = ["./inputs/a_example.out", "./inputs/b_read_on.out", "./inputs/c_incunabula.out", "./inputs/d_tough_choices.out", "./inputs/e_so_many_books.out", "./inputs/f_libraries_of_the_world.out"]
+
+for i in range(len(inputs)):
+    run(inputs[i], outputs[i])
